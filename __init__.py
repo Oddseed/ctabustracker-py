@@ -1,2 +1,1 @@
 import ctabustracker
-print 'init'
