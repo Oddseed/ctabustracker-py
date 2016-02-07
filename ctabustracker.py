@@ -41,7 +41,7 @@ def convert_time(timestring):
         return time.strptime(timestring, "%Y%m%d %H:%M")
 
 
-class ctabustracker:
+class Tracker:
     """
     Creates an object that can be used to query Bus Tracker information
     """
