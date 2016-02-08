@@ -22,10 +22,11 @@ import time
 import urllib2
 import xml.etree.ElementTree as etree
 
-# Logger setup
+
 import logging
 logging.basicConfig(level = logging.DEBUG)
 log = logging.getLogger('ctabustracker')
+DEBUG = False
 
 # Utility methods
 def convert_time(timestring):
@@ -106,12 +107,12 @@ class Tracker:
         if(param_dict != None):
             for dkey in param_dict:
                 url += "&" + urllib2.quote(dkey) + "=" + urllib2.quote(param_dict[dkey])
-
-        log.debug("Generated URL: "+ url)
-
+        if DEBUG:
+            log.debug("Generated URL: "+ url)
         log_http_time = time.time()
         response = self.__get_http_response(url)
-        log.info("API response time: " + str(time.time() - log_http_time))
+        if DEBUG:
+            log.info("API response time: " + str(time.time() - log_http_time))
         return response
 
 
@@ -129,15 +130,16 @@ class Tracker:
         tree = etree.fromstring(response)
         timestring = tree.findtext("tm")
         cta_time = time.strptime(timestring, "%Y%m%d %H:%M:%S")
+        if DEBUG:
+            log.debug("TIME CALLED:")
+            log.debug("Local System time: " + time.strftime("%Y%m%d %H:%M:%S", local_time))
+            log.debug("CTA time: " + time.strftime("%Y%m%d %H:%M:%S", cta_time))
 
-        log.debug("TIME CALLED:")
-        log.debug("Local System time: " + time.strftime("%Y%m%d %H:%M:%S", local_time))
-        log.debug("CTA time: " + time.strftime("%Y%m%d %H:%M:%S", cta_time))
-
-        time_diff = abs(time.mktime(local_time) - time.mktime(cta_time))
-        log.debug("Time difference: " + str(time_diff))
-        if ( time_diff > 5 ):
-            log.warn("Time difference between CTA and local system clock is greater than 5 seconds!") 
+        if DEBUG:
+            time_diff = abs(time.mktime(local_time) - time.mktime(cta_time))
+            log.debug("Time difference: " + str(time_diff))
+            if ( time_diff > 5 ):
+                log.warn("Time difference between CTA and local system clock is greater than 5 seconds!") 
 
         return cta_time
 
@@ -186,8 +188,8 @@ class Tracker:
                             delayed = delayed)
             # Append it to the vehicles list
             vehicles.append(v_obj)
-
-        log.info("XML Processing time for getvehicles_vid(): " + str(time.time() - debug_start_time))
+        if DEBUG:
+            log.info("XML Processing time for getvehicles_vid(): " + str(time.time() - debug_start_time))
         return vehicles
 
     def getvehicles_rt(self, *routes):
@@ -234,8 +236,8 @@ class Tracker:
                             delayed = delayed)
 
             vehicles.append(v_obj)
-
-        log.info("XML Processing time for getvehicles_rt(): " + str(time.time() - debug_start_time))
+        if DEBUG:
+            log.info("XML Processing time for getvehicles_rt(): " + str(time.time() - debug_start_time))
         return vehicles
 
     def getroutes(self):
@@ -953,8 +955,9 @@ class Service_Bulletin:
         """
         Appends an SB_Service object to this bulletin
         """
-        log.debug("Route in append: " + str(route))
-        log.debug("direction in append: " + str(direction))
+        if DEBUG:
+            log.debug("Route in append: " + str(route))
+            log.debug("direction in append: " + str(direction))
         new_sb = SB_Service(route = route,
                             direction = direction,
                             stop_num = stop_num,
@@ -1006,8 +1009,8 @@ class SB_Service:
     def __init__(self, stop_name, route = None, direction = None, stop_num = None):
         # Yes, that's how the spec has it defined. This is wacky.
         # Why would ONLY the stop name be defined?
-
-        log.debug("route in init: " + str(route))
+        if DEBUG:
+            log.debug("route in init: " + str(route))
 
         if (route != None):
             self.route = str(route)
